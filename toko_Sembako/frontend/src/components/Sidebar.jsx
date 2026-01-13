@@ -1,8 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import "./Sidebar.css";
 
 export default function Sidebar() {
   const location = useLocation();
+  const { user } = useAuth();
 
   const isActive = (path) => location.pathname === path;
 
@@ -29,20 +31,26 @@ export default function Sidebar() {
           <Link to="/customers">Customers</Link>
         </li>
 
+        <li className={isActive("/purchases") ? "active" : ""}>
+          <Link to="/purchases">Purchases</Link>
+        </li>
+
         <li className={isActive("/transactions") ? "active" : ""}>
           <Link to="/transactions">Transactions</Link>
         </li>
       </ul>
 
-      <div className="sidebar-footer">
-        <Link
-          to="/users"
-          className={`settings-link ${isActive("/users") ? "active" : ""}`}
-        >
-          <span className="settings-icon">⚙️</span>
-          <span>Pengaturan</span>
-        </Link>
-      </div>
+      {user?.role === "admin" && (
+        <div className="sidebar-footer">
+          <Link
+            to="/users"
+            className={`settings-link ${isActive("/users") ? "active" : ""}`}
+          >
+            <span className="settings-icon">⚙️</span>
+            <span>Pengaturan</span>
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

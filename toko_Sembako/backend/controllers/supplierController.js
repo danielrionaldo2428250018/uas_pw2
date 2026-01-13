@@ -1,10 +1,10 @@
 import db from "../db.js";
 
-/* GET ALL */
+/* ================= GET SUPPLIERS ================= */
 export const getSuppliers = async (req, res) => {
   try {
     const [rows] = await db.query(
-      "SELECT * FROM suppliers ORDER BY id DESC"
+      "SELECT id, nama, alamat, telepon FROM suppliers ORDER BY id DESC"
     );
     res.json(rows);
   } catch (err) {
@@ -13,15 +13,28 @@ export const getSuppliers = async (req, res) => {
   }
 };
 
-/* ADD */
+/* ================= ADD SUPPLIER ================= */
 export const addSupplier = async (req, res) => {
-  const { nama, alamat, telepon } = req.body;
-
   try {
+    const { nama, alamat, telepon } = req.body;
+
+    if (!nama || nama.trim() === "") {
+      return res.status(400).json({ message: "Nama supplier wajib diisi" });
+    }
+
+    if (!alamat || alamat.trim() === "") {
+      return res.status(400).json({ message: "Alamat wajib diisi" });
+    }
+
+    if (!telepon || telepon.trim() === "") {
+      return res.status(400).json({ message: "No telepon wajib diisi" });
+    }
+
     await db.query(
       "INSERT INTO suppliers (nama, alamat, telepon) VALUES (?,?,?)",
-      [nama, alamat, telepon]
+      [nama.trim(), alamat.trim(), telepon.trim()]
     );
+
     res.json({ message: "Supplier berhasil ditambahkan" });
   } catch (err) {
     console.error("addSupplier error:", err);
@@ -29,15 +42,29 @@ export const addSupplier = async (req, res) => {
   }
 };
 
-/* UPDATE */
+/* ================= UPDATE SUPPLIER ================= */
 export const updateSupplier = async (req, res) => {
-  const { nama, alamat, telepon } = req.body;
-
   try {
+    const { id } = req.params;
+    const { nama, alamat, telepon } = req.body;
+
+    if (!nama || nama.trim() === "") {
+      return res.status(400).json({ message: "Nama supplier wajib diisi" });
+    }
+
+    if (!alamat || alamat.trim() === "") {
+      return res.status(400).json({ message: "Alamat wajib diisi" });
+    }
+
+    if (!telepon || telepon.trim() === "") {
+      return res.status(400).json({ message: "No telepon wajib diisi" });
+    }
+
     await db.query(
       "UPDATE suppliers SET nama=?, alamat=?, telepon=? WHERE id=?",
-      [nama, alamat, telepon, req.params.id]
+      [nama.trim(), alamat.trim(), telepon.trim(), id]
     );
+
     res.json({ message: "Supplier berhasil diupdate" });
   } catch (err) {
     console.error("updateSupplier error:", err);
@@ -45,16 +72,16 @@ export const updateSupplier = async (req, res) => {
   }
 };
 
-/* DELETE */
+/* ================= DELETE SUPPLIER ================= */
 export const deleteSupplier = async (req, res) => {
   try {
-    await db.query(
-      "DELETE FROM suppliers WHERE id=?",
-      [req.params.id]
-    );
+    const { id } = req.params;
+
+    await db.query("DELETE FROM suppliers WHERE id=?", [id]);
+
     res.json({ message: "Supplier berhasil dihapus" });
   } catch (err) {
     console.error("deleteSupplier error:", err);
-    res.status(500).json({ message: "Gagal hapus supplier" });
+    res.status(500).json({ message: "Gagal menghapus supplier" });
   }
 };

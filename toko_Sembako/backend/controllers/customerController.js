@@ -1,45 +1,87 @@
 import db from "../db.js";
 
+/* ================= GET CUSTOMERS ================= */
 export const getCustomers = async (req, res) => {
   try {
-    const [rows] = await db.query("SELECT * FROM customers ORDER BY id DESC");
+    const [rows] = await db.query(
+      "SELECT id, nama, alamat, telepon FROM customers ORDER BY id DESC"
+    );
     res.json(rows);
   } catch (err) {
-    res.status(500).json(err);
+    console.error("getCustomers error:", err);
+    res.status(500).json({ message: "Gagal mengambil customer" });
   }
 };
 
+/* ================= ADD CUSTOMER ================= */
 export const addCustomer = async (req, res) => {
-  const { nama, alamat, telepon } = req.body;
   try {
+    const { nama, alamat, telepon } = req.body;
+
+    if (!nama || nama.trim() === "") {
+      return res.status(400).json({ message: "Nama customer wajib diisi" });
+    }
+
+    if (!alamat || alamat.trim() === "") {
+      return res.status(400).json({ message: "Alamat wajib diisi" });
+    }
+
+    if (!telepon || telepon.trim() === "") {
+      return res.status(400).json({ message: "No telepon wajib diisi" });
+    }
+
     await db.query(
       "INSERT INTO customers (nama, alamat, telepon) VALUES (?,?,?)",
-      [nama, alamat, telepon]
+      [nama.trim(), alamat.trim(), telepon.trim()]
     );
-    res.json({ message: "Customer ditambahkan" });
+
+    res.json({ message: "Customer berhasil ditambahkan" });
   } catch (err) {
-    res.status(500).json(err);
+    console.error("addCustomer error:", err);
+    res.status(500).json({ message: "Gagal menambah customer" });
   }
 };
 
+/* ================= UPDATE CUSTOMER ================= */
 export const updateCustomer = async (req, res) => {
-  const { nama, alamat, telepon } = req.body;
   try {
+    const { id } = req.params;
+    const { nama, alamat, telepon } = req.body;
+
+    if (!nama || nama.trim() === "") {
+      return res.status(400).json({ message: "Nama customer wajib diisi" });
+    }
+
+    if (!alamat || alamat.trim() === "") {
+      return res.status(400).json({ message: "Alamat wajib diisi" });
+    }
+
+    if (!telepon || telepon.trim() === "") {
+      return res.status(400).json({ message: "No telepon wajib diisi" });
+    }
+
     await db.query(
       "UPDATE customers SET nama=?, alamat=?, telepon=? WHERE id=?",
-      [nama, alamat, telepon, req.params.id]
+      [nama.trim(), alamat.trim(), telepon.trim(), id]
     );
-    res.json({ message: "Customer diupdate" });
+
+    res.json({ message: "Customer berhasil diupdate" });
   } catch (err) {
-    res.status(500).json(err);
+    console.error("updateCustomer error:", err);
+    res.status(500).json({ message: "Gagal update customer" });
   }
 };
 
+/* ================= DELETE CUSTOMER ================= */
 export const deleteCustomer = async (req, res) => {
   try {
-    await db.query("DELETE FROM customers WHERE id=?", [req.params.id]);
-    res.json({ message: "Customer dihapus" });
+    const { id } = req.params;
+
+    await db.query("DELETE FROM customers WHERE id=?", [id]);
+
+    res.json({ message: "Customer berhasil dihapus" });
   } catch (err) {
-    res.status(500).json(err);
+    console.error("deleteCustomer error:", err);
+    res.status(500).json({ message: "Gagal menghapus customer" });
   }
 };

@@ -6,19 +6,22 @@ import Navbar from "../components/Navbar";
 export default function Users() {
   const [users, setUsers] = useState([]);
 
-  /* modal */
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState(null);
 
-  /* form */
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("kasir");
 
   /* ================= FETCH ================= */
   const fetchUsers = async () => {
-    const res = await api.get("/users");
-    setUsers(res.data);
+    try {
+      const res = await api.get("/users");
+      setUsers(res.data);
+    } catch (err) {
+      console.error("FETCH USERS ERROR:", err);
+      alert("Gagal mengambil data user");
+    }
   };
 
   useEffect(() => {
@@ -47,28 +50,38 @@ export default function Users() {
       return alert("Username & password wajib diisi");
     }
 
-    if (editId) {
-      await api.put(`/users/${editId}`, {
-        username,
-        role,
-      });
-    } else {
-      await api.post("/users", {
-        username,
-        password,
-        role,
-      });
-    }
+    try {
+      if (editId) {
+        await api.put(`/users/${editId}`, {
+          username,
+          role,
+        });
+      } else {
+        await api.post("/users", {
+          username,
+          password,
+          role,
+        });
+      }
 
-    setShowModal(false);
-    fetchUsers();
+      setShowModal(false);
+      fetchUsers();
+    } catch (err) {
+      console.error("SIMPAN USER ERROR:", err);
+      alert("Gagal menyimpan user");
+    }
   };
 
   /* ================= HAPUS ================= */
   const handleDelete = async (id) => {
-    if (window.confirm("Yakin ingin menghapus user ini?")) {
+    if (!window.confirm("Yakin ingin menghapus user ini?")) return;
+
+    try {
       await api.delete(`/users/${id}`);
       fetchUsers();
+    } catch (err) {
+      console.error("HAPUS USER ERROR:", err);
+      alert("Gagal menghapus user");
     }
   };
 
@@ -83,10 +96,7 @@ export default function Users() {
         <div className="p-4">
           <h4>Pengaturan Users</h4>
 
-          <button
-            className="btn btn-primary mb-3"
-            onClick={openAdd}
-          >
+          <button className="btn btn-primary mb-3" onClick={openAdd}>
             + Tambah User
           </button>
 
@@ -99,26 +109,34 @@ export default function Users() {
               </tr>
             </thead>
             <tbody>
-              {users.map((u) => (
-                <tr key={u.id}>
-                  <td>{u.username}</td>
-                  <td>{u.role}</td>
-                  <td>
-                    <button
-                      className="btn btn-warning btn-sm me-2"
-                      onClick={() => openEdit(u)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="btn btn-danger btn-sm"
-                      onClick={() => handleDelete(u.id)}
-                    >
-                      Hapus
-                    </button>
+              {users.length === 0 ? (
+                <tr>
+                  <td colSpan="3" className="text-center">
+                    Tidak ada data
                   </td>
                 </tr>
-              ))}
+              ) : (
+                users.map((u) => (
+                  <tr key={u.id}>
+                    <td>{u.username}</td>
+                    <td>{u.role}</td>
+                    <td>
+                      <button
+                        className="btn btn-warning btn-sm me-2"
+                        onClick={() => openEdit(u)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="btn btn-danger btn-sm"
+                        onClick={() => handleDelete(u.id)}
+                      >
+                        Hapus
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
 
@@ -173,7 +191,6 @@ export default function Users() {
               </div>
             </div>
           )}
-
         </div>
       </div>
     </div>

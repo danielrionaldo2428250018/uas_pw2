@@ -1,23 +1,39 @@
 import db from "../db.js";
+import jwt from "jsonwebtoken";
 
 export const login = async (req, res) => {
-  const { username, password } = req.body;
-
   try {
-    const [rows] = await db.query(
-      "SELECT id, username, role FROM users WHERE username=? AND password=?",
-      [username, password]
+    const { username, password } = req.body;
+
+    const [[user]] = await db.query(
+      "SELECT * FROM users WHERE username=?",
+      [username]
     );
 
-    if (rows.length === 0) {
-      return res.status(401).json({ message: "Login gagal" });
+    if (!user) {
+      return res.status(401).json({ message: "User tidak ditemukan" });
     }
 
+    if (password !== user.password) {
+      return res.status(401).json({ message: "Password salah" });
+    }
+
+    const token = jwt.sign(
+      { id: user.id, role: user.role },
+      process.env.JWT_SECRET || "tokosembako",
+      { expiresIn: "1d" }
+    );
+
     res.json({
-      token: "dummy-token",
-      user: rows[0],
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        role: user.role,
+      },
     });
   } catch (err) {
-    res.status(500).json({ message: "Server error" });
+    console.error("login error:", err);
+    res.status(500).json({ message: "Login gagal" });
   }
 };

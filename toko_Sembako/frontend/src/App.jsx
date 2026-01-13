@@ -1,9 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
-import ProtectedRoute from "./components/ProtectedRoute";
-import AdminRoute from "./components/AdminRoute";
 
-/* ===== PAGES ===== */
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Products from "./pages/Products";
@@ -13,84 +9,27 @@ import Purchases from "./pages/Purchases";
 import Transactions from "./pages/Transactions";
 import Users from "./pages/Users";
 
-export default function App() {
+function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <Routes>
-          {/* ================= PUBLIC ================= */}
-          <Route path="/login" element={<Login />} />
+      <Routes>
 
-          {/* ================= PROTECTED ================= */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
+        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/login" element={<Login />} />
 
-          <Route
-            path="/products"
-            element={
-              <ProtectedRoute>
-                <Products />
-              </ProtectedRoute>
-            }
-          />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/products" element={<Products />} />
+        <Route path="/suppliers" element={<Suppliers />} />
+        <Route path="/customers" element={<Customers />} />
+        <Route path="/purchases" element={<Purchases />} />
+        <Route path="/transactions" element={<Transactions />} />
+        <Route path="/users" element={<Users />} />
 
-          <Route
-            path="/suppliers"
-            element={
-              <ProtectedRoute>
-                <Suppliers />
-              </ProtectedRoute>
-            }
-          />
+        <Route path="*" element={<Navigate to="/dashboard" />} />
 
-          <Route
-            path="/customers"
-            element={
-              <ProtectedRoute>
-                <Customers />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/purchases"
-            element={
-              <ProtectedRoute>
-                <Purchases />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/transactions"
-            element={
-              <ProtectedRoute>
-                <Transactions />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* ===== ADMIN ONLY ===== */}
-          <Route
-            path="/users"
-            element={
-              <AdminRoute>
-                <Users />
-              </AdminRoute>
-            }
-          />
-
-          {/* ================= DEFAULT ================= */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
-      </AuthProvider>
+      </Routes>
     </BrowserRouter>
   );
 }
+
+export default App;

@@ -9,7 +9,7 @@ export default function Transactions() {
   const [products, setProducts] = useState([]);
 
   const [items, setItems] = useState([]);
-  const [view, setView] = useState("list"); // list | item
+  const [view, setView] = useState("list");
   const [activeId, setActiveId] = useState(null);
 
   const [search, setSearch] = useState("");
@@ -17,7 +17,7 @@ export default function Transactions() {
   /* transaksi */
   const [showTxModal, setShowTxModal] = useState(false);
   const [customerId, setCustomerId] = useState("");
-  const [editTxId, setEditTxId] = useState(null); // ✅ TAMBAHAN
+  const [editTxId, setEditTxId] = useState(null);
 
   /* item modal */
   const [showItemModal, setShowItemModal] = useState(false);

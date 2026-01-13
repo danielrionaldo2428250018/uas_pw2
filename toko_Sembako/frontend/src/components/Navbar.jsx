@@ -1,17 +1,33 @@
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();          
+    navigate("/login");
+  };
 
   return (
-    <div className="d-flex justify-content-between align-items-center px-4 py-2 border-bottom">
+    <nav className="navbar bg-white px-3 d-flex justify-content-between">
+      
+      {/* 👤 USER INFO */}
       <div>
-        <strong>{user?.username}</strong> ({user?.role})
+        {user ? (
+          <strong>
+            {user.username} ({user.role})
+          </strong>
+        ) : (
+          <span className="text-muted"></span>
+        )}
       </div>
 
-      <button className="btn btn-danger btn-sm" onClick={logout}>
+      {/* 🚪 LOGOUT */}
+      <button className="btn btn-danger btn-sm" onClick={handleLogout}>
         Logout
       </button>
-    </div>
+    </nav>
   );
 }

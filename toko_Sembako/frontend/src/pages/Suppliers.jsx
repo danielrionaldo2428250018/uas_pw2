@@ -1,165 +1,131 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
+import Navbar from "../components/Navbar";
 import api from "../services/api";
 
 export default function Suppliers() {
-  const [data, setData] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
+
   const [nama, setNama] = useState("");
   const [alamat, setAlamat] = useState("");
   const [telepon, setTelepon] = useState("");
 
-  const [editData, setEditData] = useState(null);
-
-  const loadData = () => {
-    api.get("/suppliers").then((res) => setData(res.data));
-  };
+  const [editId, setEditId] = useState(null);
 
   useEffect(() => {
-    loadData();
+    loadSuppliers();
   }, []);
 
-  /* ADD */
-  const tambah = async () => {
-    try {
-      await api.post("/suppliers", { nama, alamat, telepon });
-      setNama("");
-      setAlamat("");
-      setTelepon("");
-      loadData();
-    } catch {
-      alert("Gagal menambah supplier");
-    }
+  const loadSuppliers = async () => {
+    const res = await api.get("/suppliers");
+    setSuppliers(res.data);
   };
 
-  /* UPDATE */
-  const simpanEdit = async () => {
-    try {
-      await api.put(`/suppliers/${editData.id}`, editData);
-      setEditData(null);
-      loadData();
-    } catch {
-      alert("Gagal update supplier");
+  const simpanSupplier = async () => {
+    if (!nama.trim()) return alert("Nama supplier wajib diisi");
+    if (!alamat.trim()) return alert("Alamat wajib diisi");
+    if (!telepon.trim()) return alert("No telepon wajib diisi");
+
+    const payload = { nama, alamat, telepon };
+
+    if (editId) {
+      await api.put(`/suppliers/${editId}`, payload);
+    } else {
+      await api.post("/suppliers", payload);
     }
+
+    setNama("");
+    setAlamat("");
+    setTelepon("");
+    setEditId(null);
+    loadSuppliers();
   };
 
-  /* DELETE */
-  const hapus = async (id) => {
-    if (!window.confirm("Yakin hapus supplier?")) return;
+  const editSupplier = (s) => {
+    setEditId(s.id);
+    setNama(s.nama);
+    setAlamat(s.alamat);
+    setTelepon(s.telepon);
+  };
+
+  const hapusSupplier = async (id) => {
+    if (!window.confirm("Hapus supplier ini?")) return;
     await api.delete(`/suppliers/${id}`);
-    loadData();
+    loadSuppliers();
   };
 
   return (
     <div className="d-flex">
       <Sidebar />
 
-      <div className="p-4 w-100">
-        <h3>Suppliers</h3>
+      <div className="w-100">
+        <Navbar />
 
-        {/* FORM TAMBAH */}
-        <div className="d-flex gap-2 mb-3">
-          <input
-            className="form-control"
-            placeholder="Nama"
-            value={nama}
-            onChange={(e) => setNama(e.target.value)}
-          />
-          <input
-            className="form-control"
-            placeholder="Alamat"
-            value={alamat}
-            onChange={(e) => setAlamat(e.target.value)}
-          />
-          <input
-            className="form-control"
-            placeholder="Telepon"
-            value={telepon}
-            onChange={(e) => setTelepon(e.target.value)}
-          />
-          <button className="btn btn-primary" onClick={tambah}>
-            Tambah
-          </button>
-        </div>
+        <div className="p-4">
+          <h4>Supplier</h4>
 
-        {/* TABLE */}
-        <table className="table table-bordered">
-          <thead className="table-dark">
-            <tr>
-              <th>Nama</th>
-              <th>Alamat</th>
-              <th>Telepon</th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((s) => (
-              <tr key={s.id}>
-                <td>{s.nama}</td>
-                <td>{s.alamat}</td>
-                <td>{s.telepon}</td>
-                <td>
-                  <button
-                    className="btn btn-warning me-2"
-                    onClick={() => setEditData({ ...s })}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="btn btn-danger"
-                    onClick={() => hapus(s.id)}
-                  >
-                    Hapus
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+          <div className="d-flex gap-2 mb-3">
+            <input
+              className="form-control"
+              placeholder="Nama Supplier"
+              value={nama}
+              onChange={(e) => setNama(e.target.value)}
+            />
 
-        {/* MODAL EDIT */}
-        {editData && (
-          <div className="modal show d-block bg-dark bg-opacity-50">
-            <div className="modal-dialog">
-              <div className="modal-content p-3">
-                <h5>Edit Supplier</h5>
+            <input
+              className="form-control"
+              placeholder="Alamat"
+              value={alamat}
+              onChange={(e) => setAlamat(e.target.value)}
+            />
 
-                <input
-                  className="form-control mb-2"
-                  value={editData.nama}
-                  onChange={(e) =>
-                    setEditData({ ...editData, nama: e.target.value })
-                  }
-                />
-                <input
-                  className="form-control mb-2"
-                  value={editData.alamat}
-                  onChange={(e) =>
-                    setEditData({ ...editData, alamat: e.target.value })
-                  }
-                />
-                <input
-                  className="form-control mb-2"
-                  value={editData.telepon}
-                  onChange={(e) =>
-                    setEditData({ ...editData, telepon: e.target.value })
-                  }
-                />
+            <input
+              className="form-control"
+              placeholder="No Telepon"
+              value={telepon}
+              onChange={(e) => setTelepon(e.target.value)}
+            />
 
-                <div className="text-end">
-                  <button
-                    className="btn btn-secondary me-2"
-                    onClick={() => setEditData(null)}
-                  >
-                    Batal
-                  </button>
-                  <button className="btn btn-primary" onClick={simpanEdit}>
-                    Simpan
-                  </button>
-                </div>
-              </div>
-            </div>
+            <button className="btn btn-primary" onClick={simpanSupplier}>
+              {editId ? "Update" : "Tambah"}
+            </button>
           </div>
-        )}
+
+          <table className="table table-bordered">
+            <thead className="table-dark">
+              <tr>
+                <th>Nama</th>
+                <th>Alamat</th>
+                <th>No Telepon</th>
+                <th width="150">Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {suppliers.map((s) => (
+                <tr key={s.id}>
+                  <td>{s.nama}</td>
+                  <td>{s.alamat}</td>
+                  <td>{s.telepon}</td>
+                  <td>
+                    <button
+                      className="btn btn-warning btn-sm me-2"
+                      onClick={() => editSupplier(s)}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="btn btn-danger btn-sm"
+                      onClick={() => hapusSupplier(s.id)}
+                    >
+                      Hapus
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+        </div>
       </div>
     </div>
   );

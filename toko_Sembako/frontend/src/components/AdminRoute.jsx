@@ -2,16 +2,13 @@ import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function AdminRoute({ children }) {
-  const { user, loading } = useAuth();
-
+  const { user, token, loading } = useAuth();
   if (loading) return null;
 
-  // belum login
-  if (!user) {
+  if (!token) {
     return <Navigate to="/login" replace />;
   }
 
-  // bukan admin
   if (user.role !== "admin") {
     return <Navigate to="/dashboard" replace />;
   }
