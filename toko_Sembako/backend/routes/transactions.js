@@ -7,7 +7,7 @@ import {
   getItems,
   addItem,
   updateItemQty,
-  deleteItem,
+  deleteItem
 } from "../controllers/transactionController.js";
 
 const router = express.Router();

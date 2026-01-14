@@ -92,7 +92,7 @@ export default function Dashboard() {
         </main>
 
         <footer className="dashboard-footer">
-          © 2025 Sistem Informasi Toko Sembako
+          © 2026 Sistem Informasi Toko Sembako
         </footer>
       </div>
     </div>
